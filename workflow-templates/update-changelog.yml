@@ -2,12 +2,39 @@ name: Update changelog
 on:
   push:
     branches: [ $default-branch ]
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+    paths-ignore:
+      - CHANGELOG.md
 jobs:
-  build:
+  update-changelog:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        ref: $default-branch
+    - name: generate changelog
+      uses: heinrichreimer/github-changelog-generator-action@v2.1.1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        output: AUTO_CHANGELOG.md
+        output: CHANGELOG.md
+        releaseBranch: $default-branch
+        pullRequests: true
+        unreleased: true
+        breakingLabel: "**💥Breaking:**"
+        enhancementLabel: "**🍰Enhancements:**"
+        bugsLabel: "**🐞Bugs:**"
+        deprecatedLabel: "**💀Deprecated:**"
+        removedLabel: "**🗑Removed:**"
+        securityLabel: "**🛡Security:**"
+        addSections: '{"dependencies":{"prefix":"**🕸Dependencies:**","labels":["dependencies"]}}'
+    - name: push
+      uses: github-actions-x/commit@v2.7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        push-branch: 'master'
+        commit-message: 'Update Changelog'
+        force-add: 'true'
+        files: CHANGELOG.md
+        name: ChangelogBot
