@@ -1,0 +1,5 @@
+{
+    "name": "Changelog workflow",
+    "description": "Updates the chgangelog on the Master branch.",
+    "iconName": "changelog-icon"
+}
